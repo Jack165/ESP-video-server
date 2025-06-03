@@ -1,10 +1,10 @@
 package com.feng.videoserver.controller;
 
-import com.feng.videoserver.model.VideoConversionRequest;
-import com.feng.videoserver.model.VideoConversionResponse;
-import com.feng.videoserver.service.ImageCacheService;
-import com.feng.videoserver.service.VideoConversionService;
+import com.feng.videoserver.gboal.GlobalImageCache;
+import com.feng.videoserver.gboal.TcpStreamServer;
+import com.feng.videoserver.service.IVideoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -15,52 +15,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/video")
 public class VideoConversionController {
 
+    @Qualifier("MJpegService")//默认MJPEG
     @Autowired
-    private VideoConversionService videoConversionService;
+    private IVideoService videoService;
     
     @Autowired
-    private ImageCacheService imageCacheService;
+    private GlobalImageCache imageCacheService;
 
-    @PostMapping("/convert")
-    public VideoConversionResponse convertJpegToH265Video(@RequestBody VideoConversionRequest request) {
-        return videoConversionService.convertJpegToH265Video(request);
-    }
-    
-    @PostMapping("/upload-convert")
-    public VideoConversionResponse uploadAndConvert(
-            @RequestParam("images") MultipartFile[] imageFiles,
-            @RequestParam(value = "outputFileName", required = false) String outputFileName,
-            @RequestParam(value = "frameRate", defaultValue = "30") int frameRate,
-            @RequestParam(value = "width", defaultValue = "0") int width,
-            @RequestParam(value = "height", defaultValue = "0") int height) throws IOException {
-        
-        List<byte[]> jpegImages = new ArrayList<>();
-        for (MultipartFile file : imageFiles) {
-            jpegImages.add(file.getBytes());
-        }
-        
-        VideoConversionRequest request = new VideoConversionRequest();
-        request.setJpegImages(jpegImages);
-        request.setOutputFileName(outputFileName);
-        request.setFrameRate(frameRate);
-        request.setWidth(width);
-        request.setHeight(height);
-        
-        return videoConversionService.convertJpegToH265Video(request);
-    }
-    
+
     @PostMapping("/upload-image")
     public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile imageFile) {
         try {
@@ -93,4 +64,10 @@ public class VideoConversionController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+    @GetMapping("/start")
+    public String start(){
+        videoService.start();
+        return "success";
+    }
+
 }

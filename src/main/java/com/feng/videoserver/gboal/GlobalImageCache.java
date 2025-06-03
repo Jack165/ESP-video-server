@@ -1,33 +1,30 @@
-package com.feng.videoserver.service;
+package com.feng.videoserver.gboal;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
 import java.awt.image.BufferedImage;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
+
+/**
+ * 全局图片缓存器
+ */
 @Service
-public class ImageCacheService {
+public class GlobalImageCache {
 
     @Value("${image.cache.retention-minutes:10}")
     private int retentionMinutes;
 
-    private final Map<String, CachedImage> imageCache = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    @Value("${image.cache.max-size:10000}")
+    private int maxCacheSize;
 
-    @PostConstruct
-    public void init() {
-        // 定期清理过期的图像（每分钟检查一次）
-        scheduler.scheduleAtFixedRate(this::cleanupExpiredImages, 1, 1, TimeUnit.MINUTES);
-    }
+    private final Map<String, CachedImage> imageCache = new ConcurrentHashMap<>();
+
 
     /**
      * 添加图像到缓存
@@ -35,6 +32,10 @@ public class ImageCacheService {
      * @return 图像ID
      */
     public String cacheImage(BufferedImage image) {
+        // 新增缓存大小检查
+        if (imageCache.size() >= maxCacheSize) {
+            cleanupExpiredImages();
+        }
         String imageId = UUID.randomUUID().toString();
         imageCache.put(imageId, new CachedImage(image, Instant.now()));
         return imageId;
@@ -51,7 +52,7 @@ public class ImageCacheService {
     /**
      * 清理过期的图像
      */
-    private void cleanupExpiredImages() {
+    public void cleanupExpiredImages() {
         Instant expirationTime = Instant.now().minus(Duration.ofMinutes(retentionMinutes));
         imageCache.entrySet().removeIf(entry -> entry.getValue().getTimestamp().isBefore(expirationTime));
     }
