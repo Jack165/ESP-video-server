@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时视频流</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .upload-section, .stream-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        video {
+            width: 100%;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>实时视频流演示</h1>
+        
+        <div class="upload-section">
+            <h2>上传图片</h2>
+            <input type="file" id="imageInput" accept="image/jpeg" />
+            <button id="uploadBtn">上传图片</button>
+            <div id="uploadStatus"></div>
+        </div>
+        
+        <div class="stream-section">
+            <h2>视频流</h2>
+            <button id="connectBtn">连接视频流</button>
+            <button id="disconnectBtn" disabled>断开连接</button>
+            <div id="videoContainer">
+                <video id="videoPlayer" autoplay></video>
+            </div>
+            <div id="connectionStatus">未连接</div>
+        </div>
+    </div>
+
+    <script>
+        // 上传图片
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('imageInput');
+            const statusDiv = document.getElementById('uploadStatus');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                statusDiv.textContent = '请选择一张图片';
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            
+            statusDiv.textContent = '上传中...';
+            
+            try {
+                const response = await fetch('/api/video/upload-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.textContent = `上传成功! 图像ID: ${result.imageId}`;
+                } else {
+                    statusDiv.textContent = `上传失败: ${result.error || '未知错误'}`;
+                }
+            } catch (error) {
+                statusDiv.textContent = `上传出错: ${error.message}`;
+            }
+        });
+        
+        // WebSocket连接
+        let websocket = null;
+        const videoPlayer = document.getElementById('videoPlayer');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const statusDiv = document.getElementById('connectionStatus');
+        const mediaSource = new MediaSource();
+        
+        videoPlayer.src = URL.createObjectURL(mediaSource);
+        
+        mediaSource.addEventListener('sourceopen', () => {
+            const sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8,opus"');
+            
+            connectBtn.addEventListener('click', () => {
+                // 连接WebSocket
+                websocket = new WebSocket(`ws://${window.location.host}/ws/video-stream`);
+                
+                websocket.binaryType = 'arraybuffer';
+                
+                websocket.onopen = () => {
+                    statusDiv.textContent = '已连接';
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                };
+                
+                websocket.onmessage = (event) => {
+                    if (event.data instanceof ArrayBuffer) {
+                        const videoData = new Uint8Array(event.data);
+                        sourceBuffer.appendBuffer(videoData);
+                    }
+                };
+                
+                websocket.onclose = () => {
+                    statusDiv.textContent = '连接已关闭';
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                };
+                
+                websocket.onerror = (error) => {
+                    statusDiv.textContent = `连接错误: ${error}`;
+                    connectBtn.disabled = false;
+                    disconnectBtn.disabled = true;
+                };
+            });
+            
+            disconnectBtn.addEventListener('click', () => {
+                if (websocket) {
+                    websocket.close();
+                    websocket = null;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
