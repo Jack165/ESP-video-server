@@ -1,6 +1,6 @@
 package com.feng.videoserver.websocket;
 
-import com.feng.videoserver.service.impl.VideoStreamService;
+import com.feng.videoserver.service.impl.MJpegService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class VideoStreamWebSocketHandler extends AbstractWebSocketHandler {
     private static final String STORAGE_PATH = "./captures/";
     @Autowired
-    private VideoStreamService videoStreamService;
+    private MJpegService mJpegService;
 
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -51,7 +51,7 @@ public class VideoStreamWebSocketHandler extends AbstractWebSocketHandler {
      */
     private void startFrameSendingTask() {
         scheduler.scheduleAtFixedRate(() -> {
-            byte[] frame = videoStreamService.getNextFrame();
+            byte[] frame = mJpegService.getNextFrame();
             if (frame != null && frame.length > 0) {
                 sendFrameToAllSessions(frame);
             }

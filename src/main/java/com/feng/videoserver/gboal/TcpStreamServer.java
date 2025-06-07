@@ -1,6 +1,6 @@
 package com.feng.videoserver.gboal;
 
-import com.feng.videoserver.Socket.ClientHandler;
+import com.feng.videoserver.Socket.VideoClientHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,7 @@ public class TcpStreamServer {
             try (ServerSocket server = new ServerSocket(STREAM_PORT)) {
                 while (true) {
                     Socket client = server.accept();
-                    threadPool.execute(new ClientHandler(client,imageCacheService));
+                    threadPool.execute(new VideoClientHandler(client,imageCacheService));
                 }
             } catch (IOException e) {
                 e.printStackTrace();

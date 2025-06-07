@@ -10,11 +10,11 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ClientHandler implements Runnable{
+public class VideoClientHandler implements Runnable{
     private final Socket socket;
     private String deviceId;
     GlobalImageCache imageCacheService;
-    public ClientHandler(Socket socket, GlobalImageCache imageCacheService) {
+    public VideoClientHandler(Socket socket, GlobalImageCache imageCacheService) {
         this.socket = socket;
         this.imageCacheService=imageCacheService;
     }

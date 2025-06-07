@@ -1,6 +1,6 @@
 package com.feng.videoserver.service.impl;
-
-import com.feng.videoserver.Socket.ClientHandler;
+/*
+import com.feng.videoserver.Socket.VideoClientHandler;
 import com.feng.videoserver.gboal.GlobalImageCache;
 import com.feng.videoserver.service.IVideoService;
 import org.bytedeco.ffmpeg.global.avutil;
@@ -54,7 +54,7 @@ public class VideoStreamService implements IVideoService {
     /**
      * 添加图像到视频流
      * @param image 图像
-     */
+
     public void addImageToStream(BufferedImage image) {
         if (running && image != null) {
             try {
@@ -73,6 +73,9 @@ public class VideoStreamService implements IVideoService {
             }
         }
     }
+      */
+
+    /*
     public static byte[] convertToJpegWithQuality(BufferedImage image, float quality) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try {
@@ -109,7 +112,7 @@ public class VideoStreamService implements IVideoService {
     /**
      * 获取下一个视频帧
      * @return 视频帧数据
-     */
+
     public byte[] getNextFrame() {
         try {
             return frameQueue.poll(100, java.util.concurrent.TimeUnit.MILLISECONDS);
@@ -118,12 +121,14 @@ public class VideoStreamService implements IVideoService {
             return null;
         }
     }
+     */
 
     /**
      * 将图像编码为H.265帧
      * @param image 图像
      * @return 编码后的帧数据
      */
+    /*
     private byte[] encodeImageToH265(BufferedImage image) {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -157,7 +162,9 @@ public class VideoStreamService implements IVideoService {
             return null;
         }
     }
+    */
 
+    /*
     @Override
     public void start() {
         new Thread(() -> {
@@ -165,7 +172,7 @@ public class VideoStreamService implements IVideoService {
 
                 while (true) {
                     Socket client = server.accept();
-                    threadPool.execute(new ClientHandler(client,imageCacheService));
+                    threadPool.execute(new VideoClientHandler(client,imageCacheService));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -173,9 +180,12 @@ public class VideoStreamService implements IVideoService {
         }).start();
     }
 
+*/
+
     /**
      * 启动编码线程
      */
+    /*
     public void startEncodingThread() {
         running = true;
         encodingThread = new Thread(() -> {
@@ -197,9 +207,11 @@ public class VideoStreamService implements IVideoService {
         encodingThread.start();
     }
 
+    */
     /**
      * 停止编码线程
      */
+    /*
     public void stopEncodingThread() {
         running = false;
         if (encodingThread != null) {
@@ -211,7 +223,9 @@ public class VideoStreamService implements IVideoService {
             }
         }
     }
+    */
 
+    /*
     private byte[] encodeImageToFmp4(BufferedImage image) {
         try {
             // 清空旧数据
@@ -226,7 +240,9 @@ public class VideoStreamService implements IVideoService {
             return null;
         }
     }
+    */
 
+    /*
     private FFmpegFrameRecorder createFmp4Recorder(ByteArrayOutputStream outputStream, int width, int height) {
         FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputStream, width, height);
 
@@ -250,4 +266,7 @@ public class VideoStreamService implements IVideoService {
 
         return recorder;
     }
+
 }
+
+    */

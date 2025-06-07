@@ -41,12 +41,13 @@
             <scope>test</scope>
         </dependency>
         
-        <!-- JavaCV 依赖 -->
+        <!-- JavaCV 依赖
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
             <version>1.5.9</version>
         </dependency>
+-->
         
         <!-- WebSocket 依赖 -->
         <dependency>

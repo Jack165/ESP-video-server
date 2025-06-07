@@ -114,8 +114,8 @@
     videoPlayer.src = URL.createObjectURL(mediaSource);
 
     mediaSource.addEventListener('sourceopen', () => {
-        const mime = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
-         sourceBuffer = mediaSource.addSourceBuffer(mime);
+        const mime = 'video/mp4; codecs="hev1.1.6.L153.B0"';
+        sourceBuffer = mediaSource.addSourceBuffer(mime);
        // const sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="hev1.1.6.L153.B0"');
 
         connectBtn.addEventListener('click', () => {

@@ -1,6 +1,6 @@
 package com.feng.videoserver.service.impl;
 
-import com.feng.videoserver.Socket.ClientHandler;
+import com.feng.videoserver.Socket.VideoClientHandler;
 import com.feng.videoserver.service.IVideoService;
 import com.feng.videoserver.gboal.GlobalImageCache;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class MJpegService implements IVideoService {
 
                 while (true) {
                     Socket client = server.accept();
-                    threadPool.execute(new ClientHandler(client,imageCacheService));
+                    threadPool.execute(new VideoClientHandler(client,imageCacheService));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
